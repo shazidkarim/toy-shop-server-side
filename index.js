@@ -29,38 +29,65 @@ async function run() {
     const dollCollection = client.db('toymarket').collection('dolls');
     const addToyCollection = client.db('toymarket').collection('addtoy');
 
-        app.get('/dolls', async(req,res)=>{
-            const cursor = dollCollection.find();
-            const result = await cursor.toArray();
-            res.send(result);
-        })
+    app.get('/dolls', async (req, res) => {
+      const cursor = dollCollection.find();
+      const result = await cursor.toArray();
+      res.send(result);
+    })
 
-        // add toy
-        app.get('/addtoy', async(req,res)=>{
-          console.log(req.query.email);
-          let query = {};
-          if(req.query?.email){
-            query = {email : req.query.email}
-          }
-          const result = await addToyCollection.find(query).toArray();
-          res.send(result);
-        })
+    // add toy
+    app.get('/addtoy', async (req, res) => {
+      console.log(req.query.email);
+      let query = {};
+      if (req.query?.email) {
+        query = { email: req.query.email }
+      }
+      const result = await addToyCollection.find(query).toArray();
+      res.send(result);
+    })
+
+    app.get('/addtoy/:id', async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) }
+      const result = await addToyCollection.findOne(query)
+      res.send(result)
+    })
 
 
-        app.post('/addtoy', async (req,res)=>{
-          const addtoy = req.body;
-          console.log(addtoy);
-          const result = await addToyCollection.insertOne(addtoy);
-          res.send(result);
-        })
+    app.post('/addtoy', async (req, res) => {
+      const addtoy = req.body;
+      console.log(addtoy);
+      const result = await addToyCollection.insertOne(addtoy);
+      res.send(result);
+    })
 
-        app.delete('/addtoy/:id', async(req,res)=>{
-          const id = req.params.id;
-          const query = {_id: new ObjectId(id)};
-          const result = await addToyCollection.deleteOne(query);
-          console.log(result)
-          res.send(result);
-        })
+    app.put('/addtoy/:id', async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: new ObjectId(id) }
+      const options = { upsert: true };
+      const updatedToy = req.body;
+      const newToy = {
+        $set: {
+          category: updatedToy.category,
+          price: updatedToy.price,
+          quantity: updatedToy.quantity,
+          rating: updatedToy.rating,
+          photo: updatedToy.photo,
+          customerName: updatedToy.customerName
+        }
+      }
+      const result = await addToyCollection.updateOne(filter,newToy,options);
+      res.send(result);
+
+    })
+
+    app.delete('/addtoy/:id', async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await addToyCollection.deleteOne(query);
+      console.log(result)
+      res.send(result);
+    })
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
@@ -73,10 +100,10 @@ async function run() {
 run().catch(console.dir);
 
 
-app.get('/',(req,res)=>{
-    res.send('toy marketplace server is running')
+app.get('/', (req, res) => {
+  res.send('toy marketplace server is running')
 })
 
-app.listen(port,()=>{
-    console.log(`toy marketplace server is running on port ${port}`)
+app.listen(port, () => {
+  console.log(`toy marketplace server is running on port ${port}`)
 })
