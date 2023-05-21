@@ -48,10 +48,18 @@ async function run() {
 
     app.get('/addtoy/:id', async (req, res) => {
       const id = req.params.id;
-      const query = { _id: new ObjectId(id) }
-      const result = await addToyCollection.findOne(query)
-      res.send(result)
-    })
+      const query = { _id: new ObjectId(id) };
+    
+      try {
+        const sortCriteria = req.query.sortBy === 'desc' ? -1 : 1;
+        const result = await addToyCollection.find(query).sort({ price: sortCriteria }).toArray();
+        res.send(result);
+      } catch (error) {
+        console.error('Error:', error);
+        res.status(500).json({ error: 'An error occurred while retrieving the toys' });
+      }
+    });
+    
 
 
     app.post('/addtoy', async (req, res) => {
