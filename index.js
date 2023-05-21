@@ -70,13 +70,24 @@ async function run() {
     
 
 
+    // app.post('/addtoy', async (req, res) => {
+    //   const addtoy = req.body;
+    //   console.log(addtoy);
+    //   const result = await addToyCollection.insertOne(addtoy);
+    //   res.send(result);
+    // })
+
+
+
     app.post('/addtoy', async (req, res) => {
       const addtoy = req.body;
       console.log(addtoy);
       const result = await addToyCollection.insertOne(addtoy);
-      res.send(result);
-    })
+      const insertedId = result.insertedId;
+      res.send({ insertedId }); // Send the inserted document's ID as a response
+    });
 
+    
     app.put('/addtoy/:id', async (req, res) => {
       const id = req.params.id;
       const filter = { _id: new ObjectId(id) }
