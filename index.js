@@ -29,11 +29,19 @@ async function run() {
     const dollCollection = client.db('toymarket').collection('dolls');
     const addToyCollection = client.db('toymarket').collection('addtoy');
 
-    app.get('/dolls', async (req, res) => {
-      const cursor = dollCollection.find();
-      const result = await cursor.toArray();
+    // app.get('/dolls', async (req, res) => {
+    //   const cursor = dollCollection.find();
+    //   const result = await cursor.toArray();
+    //   res.send(result);
+    // })
+    // 
+    app.get("/dolls", async (req, res) => {
+      const limit = parseInt(req.query.limit) || 20;
+      const result = await dollCollection.find().limit(limit).toArray();
       res.send(result);
-    })
+     
+    });
+    
 
     // add toy
     app.get('/addtoy', async (req, res) => {
